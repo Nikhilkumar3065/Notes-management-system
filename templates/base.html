@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Notes App{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="bg-light d-flex flex-column min-vh-100">
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+
+        <div class="container">
+
+            <a class="navbar-brand fw-bold" href="{{ url_for('home') }}">
+                📝 Notes App
+            </a>
+
+            <button class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav"
+                    aria-label="Toggle navigation">
+
+                <span class="navbar-toggler-icon"></span>
+
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+
+                <!-- LEFT MENU -->
+                <ul class="navbar-nav me-auto">
+
+                    {% if not session.get('username') %}
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('login') }}">
+                            Home
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('about') }}">
+                            About
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('contact') }}">
+                            Contact
+                        </a>
+                    </li>
+
+                    {% endif %}
+
+                </ul>
+
+                {% if session.get('username') %}
+
+                <!-- SEARCH FORM -->
+                <form class="d-flex me-3"
+                      method="POST"
+                      action="{{ url_for('search') }}">
+
+                    <input
+                        class="form-control me-2"
+                        type="search"
+                        name="keyword"
+                        placeholder="Search notes..."
+                        required>
+
+                    <button
+                        class="btn btn-warning fw-bold"
+                        type="submit">
+
+                        Search
+
+                    </button>
+
+                </form>
+
+                {% endif %}
+
+                <!-- RIGHT MENU -->
+                <ul class="navbar-nav">
+
+                    {% if session.get('username') %}
+
+                    <li class="nav-item">
+                        <span class="nav-link text-warning fw-bold">
+                            Welcome {{ session.get('username') }}
+                        </span>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('addnote') }}">
+                            Add Note
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('viewall') }}">
+                            View Notes
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">
+                            Logout
+                        </a>
+                    </li>
+
+                    {% endif %}
+
+                </ul>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mt-4 flex-grow-1">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+
+                {% for category, message in messages %}
+
+                <div class="alert alert-{{ category }} alert-dismissible fade show">
+
+                    {{ message }}
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Close">
+                    </button>
+
+                </div>
+
+                {% endfor %}
+
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}
+        {% endblock %}
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-primary text-white text-center py-3 mt-auto">
+
+        <div class="container">
+
+            <h6>Notes Management System</h6>
+
+            <p class="mb-0">
+                © 2026 Developed by OBULSHETTY NIKHIL KUMAR
+            </p>
+
+        </div>
+
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>

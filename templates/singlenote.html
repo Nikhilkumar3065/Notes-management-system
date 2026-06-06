@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}
+View Note
+{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+  <div class="col-md-8 col-lg-7">
+
+    <div class="card shadow">
+
+      <div class="card-header bg-primary text-white">
+        <h3 class="mb-0">{{ note.title }}</h3>
+      </div>
+
+      <div class="card-body">
+
+        <p class="fs-5">
+          {{ note.content }}
+        </p>
+
+        <hr>
+
+        <p class="text-muted">
+          Created At: {{ note.created_at }}
+        </p>
+
+        <a href="{{ url_for('viewall') }}" class="btn btn-secondary">
+
+          Back
+
+        </a>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}

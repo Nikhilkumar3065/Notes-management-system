@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Search Results
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+    <h2 class="mb-4">
+        Search Results for "{{ keyword }}"
+    </h2>
+
+    {% if notes %}
+
+        <div class="row">
+
+            {% for note in notes %}
+
+            <div class="col-md-6 col-lg-4 mb-4">
+
+                <div class="card shadow-sm h-100">
+
+                    <div class="card-body">
+
+                        <h5 class="card-title">
+                            {{ note.title }}
+                        </h5>
+
+                        <p class="card-text">
+                            {{ note.content[:120] }}...
+                        </p>
+
+                        <a
+                            href="{{ url_for('viewnotes', note_id=note.id) }}"
+                            class="btn btn-primary">
+
+                            View Note
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <div class="alert alert-warning">
+
+            No notes found matching
+            <strong>{{ keyword }}</strong>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

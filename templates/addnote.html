@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Add Note
+{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+
+  <div class="col-md-8 col-lg-7">
+
+    <div class="card shadow">
+
+      <div class="card-header bg-success text-white">
+        <h3 class="mb-0">Add New Note</h3>
+      </div>
+
+      <div class="card-body">
+
+        <form method="POST">
+
+          <div class="mb-3">
+
+            <label class="form-label">
+              Note Title
+            </label>
+
+            <input type="text" name="title" class="form-control" placeholder="Enter Note Title" required>
+
+          </div>
+
+          <div class="mb-3">
+
+            <label class="form-label">
+              Note Content
+            </label>
+
+            <textarea name="content" rows="6" class="form-control" placeholder="Write your note here..."
+              required></textarea>
+
+          </div>
+
+          <button type="submit" class="btn btn-success">
+
+            Save Note
+
+          </button>
+
+          <a href="{{ url_for('viewall') }}" class="btn btn-secondary ms-2">
+
+            Cancel
+
+          </a>
+
+        </form>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+</div>
+
+{% endblock %}
