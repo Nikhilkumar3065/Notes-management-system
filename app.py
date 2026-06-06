@@ -107,7 +107,7 @@ def search():
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 SENDER_EMAIL = "kumarnk3065@gmail.com"
-SENDER_PASSWORD = "dzhqm uvjn eyyi agkl"   # ⚠️ use App Password (not normal password)
+SENDER_PASSWORD = "gzap sflt kjxd tqiq"   # ⚠️ use App Password (not normal password)
 RECEIVER_EMAIL = "kumarnk3065@gmail.com"
 
 
