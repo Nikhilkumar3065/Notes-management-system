@@ -8,7 +8,7 @@ from email.mime.text import MIMEText
 from itsdangerous import URLSafeTimedSerializer
 
 app = Flask(__name__)
-app.secret_key = "myverysecretkey"
+app.secret_key = "@#$ni@#mjh#hhnj@9*&#$"  # Change this to a random secret key in production
 serializer = URLSafeTimedSerializer(app.secret_key)
 # ---------------- DATABASE CONNECTION ----------------
 
@@ -597,4 +597,4 @@ def deletenote(note_id):
 # ---------------- RUN APP ----------------
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
