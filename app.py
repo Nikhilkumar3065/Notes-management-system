@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, session, flash, url_for
-import pymysql
+import sqlite3
 import re
 from werkzeug.security import generate_password_hash, check_password_hash
 import smtplib
@@ -12,13 +12,9 @@ serializer = URLSafeTimedSerializer(app.secret_key)
 # ---------------- DATABASE CONNECTION ----------------
 
 def get_db_connection():
-    return pymysql.connect(
-        host="localhost",
-        user="root",
-        password="KNikhil@3065",
-        database="notes_manage",
-        cursorclass=pymysql.cursors.DictCursor
-    )
+    conn = sqlite3.connect('notes.db')
+    conn.row_factory = sqlite3.Row
+    return conn
 
 # ---------------- HOME ----------------
 
@@ -84,8 +80,8 @@ def search():
 
     cur.execute("""
         SELECT * FROM notes
-        WHERE user_id=%s
-        AND (title LIKE %s OR content LIKE %s)
+        WHERE user_id= ?
+        AND (title LIKE ? OR content LIKE ?)    
     """, (
         session['user_id'],
         f"%{keyword}%",
@@ -181,7 +177,7 @@ def register():
         cur = conn.cursor()
 
         cur.execute(
-            "SELECT * FROM users WHERE username=%s OR email=%s",
+            "SELECT * FROM users WHERE username= ? OR email= ?",
             (username, email)
         )
 
@@ -194,7 +190,7 @@ def register():
             return redirect('/register')
 
         cur.execute(
-            "INSERT INTO users(username,email,password) VALUES(%s,%s,%s)",
+            "INSERT INTO users(username,email,password) VALUES(?,?,?)",
             (username, email, hashed_password)
         )
 
@@ -222,7 +218,7 @@ def login():
         cur = conn.cursor()
 
         cur.execute(
-            "SELECT * FROM users WHERE username=%s",
+            "SELECT * FROM users WHERE username= ?",
             (username,)
         )
 
@@ -255,8 +251,7 @@ def forgotpassword():
         conn = get_db_connection()
         cur = conn.cursor()
 
-        cur.execute(
-            "SELECT * FROM users WHERE email=%s",
+        cur.execute(            "SELECT * FROM users WHERE email= ?",
             (email,)
         )
 
@@ -390,7 +385,7 @@ def resetpassword(token):
         cur = conn.cursor()
 
         cur.execute(
-            "UPDATE users SET password=%s WHERE email=%s",
+            "UPDATE users SET password=? WHERE email= ?",
             (hashed_password, email)
         )
 
@@ -438,7 +433,7 @@ def addnote():
         cur = conn.cursor()
 
         cur.execute(
-            "INSERT INTO notes(title,content,user_id) VALUES(%s,%s,%s)",
+            "INSERT INTO notes(title,content,user_id) VALUES(?,?,?)",
             (title, content, user_id)
         )
 
@@ -467,7 +462,7 @@ def viewall():
     cur = conn.cursor()
 
     cur.execute(
-        "SELECT * FROM notes WHERE user_id=%s ORDER BY created_at DESC",
+        "SELECT * FROM notes WHERE user_id=? ORDER BY created_at DESC",
         (user_id,)
     )
 
@@ -495,7 +490,7 @@ def viewnotes(note_id):
     cur = conn.cursor()
 
     cur.execute(
-        "SELECT * FROM notes WHERE id=%s AND user_id=%s",
+        "SELECT * FROM notes WHERE id=? AND user_id=?",
         (note_id, user_id)
     )
 
@@ -527,7 +522,7 @@ def updatenote(note_id):
     cur = conn.cursor()
 
     cur.execute(
-        "SELECT * FROM notes WHERE id=%s AND user_id=%s",
+        "SELECT * FROM notes WHERE id=? AND user_id=?",
         (note_id, user_id)
     )
 
@@ -548,8 +543,8 @@ def updatenote(note_id):
         content = request.form['content']
 
         cur.execute(
-            "UPDATE notes SET title=%s, content=%s WHERE id=%s",
-            (title, content, note_id)
+            "UPDATE notes SET title=?, content=? WHERE id=? AND user_id=?",
+            (title, content, note_id, user_id)
         )
 
         conn.commit()
@@ -583,7 +578,7 @@ def deletenote(note_id):
     cur = conn.cursor()
 
     cur.execute(
-        "DELETE FROM notes WHERE id=%s AND user_id=%s",
+        "DELETE FROM notes WHERE id=? AND user_id=?",
         (note_id, user_id)
     )
 
