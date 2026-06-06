@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, session, flash, url_for
 import sqlite3
+import os
 import re
 from werkzeug.security import generate_password_hash, check_password_hash
 import smtplib
@@ -11,11 +12,13 @@ app.secret_key = "myverysecretkey"
 serializer = URLSafeTimedSerializer(app.secret_key)
 # ---------------- DATABASE CONNECTION ----------------
 
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+DATABASE = os.path.join(BASE_DIR, "notes.db")
+
 def get_db_connection():
-    conn = sqlite3.connect('notes.db')
+    conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
     return conn
-
 # ---------------- HOME ----------------
 
 @app.route('/')
