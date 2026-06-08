@@ -10,6 +10,15 @@ from itsdangerous import URLSafeTimedSerializer
 app = Flask(__name__)
 app.secret_key = "@#$ni@#mjh#hhnj@9*&#$"  # Change this to a random secret key in production
 serializer = URLSafeTimedSerializer(app.secret_key)
+
+
+# ---------- CONFIG (Gmail SMTP example) ----------
+SMTP_SERVER = "smtp.gmail.com"
+SMTP_PORT = 587
+SENDER_EMAIL = "nikhilkumar3065@gmail.com"
+SENDER_PASSWORD = "dcvw mfvt aabg edmy"
+
+
 # ---------------- DATABASE CONNECTION ----------------
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -31,44 +40,6 @@ def home():
 def about():
     return render_template('about.html')
 
-# ---------------- CONTACT ----------------
-
-@app.route('/testmail')
-def testmail():
-
-    try:
-
-        msg = MIMEText("Testing Gmail SMTP")
-
-        msg["Subject"] = "SMTP Test"
-        msg["From"] = SENDER_EMAIL
-        msg["To"] = SENDER_EMAIL
-
-        server = smtplib.SMTP(
-            SMTP_SERVER,
-            SMTP_PORT
-        )
-
-        server.starttls()
-
-        server.login(
-            SENDER_EMAIL,
-            SENDER_PASSWORD
-        )
-
-        server.sendmail(
-            SENDER_EMAIL,
-            SENDER_EMAIL,
-            msg.as_string()
-        )
-
-        server.quit()
-
-        return "EMAIL SENT SUCCESSFULLY"
-
-    except Exception as e:
-
-        return str(e)
 #-----------search engine optimization (SEO)----------------
 @app.route('/search', methods=['POST'])
 def search():
@@ -101,15 +72,7 @@ def search():
         notes=notes,
         keyword=keyword
     )
-
-
-# ---------- CONFIG (Gmail SMTP example) ----------
-SMTP_SERVER = "smtp.gmail.com"
-SMTP_PORT = 587
-SENDER_EMAIL = "kumarnk3065@gmail.com"
-SENDER_PASSWORD = "ujbm hrit ogtg jbge".replace(" ", "")   # ⚠️ use App Password (not normal password)
-RECEIVER_EMAIL = "kumarnk3065@gmail.com"
-
+#----------------- CONTACT ----------------
 
 @app.route("/contact", methods=["GET", "POST"])
 def contact():
@@ -137,7 +100,7 @@ Message:
             msg = MIMEText(body)
             msg["Subject"] = subject if subject else "New Contact Form Message"
             msg["From"] = SENDER_EMAIL
-            msg["To"] = RECEIVER_EMAIL
+            msg["To"] = SENDER_EMAIL  # Send to self for demo; change to RECEIVER_EMAIL in production
 
             # Connect to SMTP server
             server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
@@ -145,7 +108,7 @@ Message:
             server.login(SENDER_EMAIL, SENDER_PASSWORD)
 
             # Send email
-            server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, msg.as_string())
+            server.sendmail(SENDER_EMAIL, SENDER_EMAIL, msg.as_string())
             server.quit()
 
             flash("Message sent successfully!", "success")
@@ -249,12 +212,13 @@ def forgotpassword():
 
     if request.method == 'POST':
 
-        email = request.form['email']
+        email = request.form['email'].strip()
 
         conn = get_db_connection()
         cur = conn.cursor()
 
-        cur.execute(            "SELECT * FROM users WHERE email= ?",
+        cur.execute(
+            "SELECT * FROM users WHERE email = ?",
             (email,)
         )
 
@@ -264,41 +228,51 @@ def forgotpassword():
         conn.close()
 
         if not user:
-
             flash(
-                "Email Not Found",
+                "Email not found",
                 "danger"
             )
-
             return redirect('/forgotpassword')
 
         try:
 
+            # Generate reset token
             token = serializer.dumps(
                 email,
                 salt='reset-password'
             )
 
+            # Create reset link
             reset_link = url_for(
                 'resetpassword',
                 token=token,
                 _external=True
             )
 
+            print("RESET LINK:", reset_link)
+
+            # Email body
             body = f"""
 Hello {user['username']},
 
-Click the link below to reset your password:
+A password reset request was received for your Notes App account.
+
+To reset your password, click the link below:
 
 {reset_link}
 
-This link expires in 30 minutes.
+This link will expire in 30 minutes.
+
+If you did not request a password reset, please ignore this email.
+
+Thank you,
+Notes App Team
 """
 
-            msg = MIMEText(body)
+            msg = MIMEText(body, "plain", "utf-8")
 
-            msg["Subject"] = "Password Reset"
-            msg["From"] = SENDER_EMAIL
+            msg["Subject"] = "Notes App - Password Reset Request"
+            msg["From"] = f"Notes App <{SENDER_EMAIL}>"
             msg["To"] = email
 
             server = smtplib.SMTP(
@@ -306,7 +280,9 @@ This link expires in 30 minutes.
                 SMTP_PORT
             )
 
+            server.ehlo()
             server.starttls()
+            server.ehlo()
 
             server.login(
                 SENDER_EMAIL,
@@ -322,7 +298,7 @@ This link expires in 30 minutes.
             server.quit()
 
             flash(
-                "Reset link sent to your email",
+                "Password reset link sent to your email.",
                 "success"
             )
 
